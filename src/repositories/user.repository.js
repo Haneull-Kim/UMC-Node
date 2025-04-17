@@ -65,7 +65,7 @@ export const setPreference = async (userId, foodCategoryId) => {
 
   try {
     await pool.query(
-      `INSERT INTO user_favor_category (food_category_id, user_id) VALUES (?, ?);`,
+      `INSERT INTO user_food (food_category_id, user_id) VALUES (?, ?);`,
       [foodCategoryId, userId]
     );
 
