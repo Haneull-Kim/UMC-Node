@@ -8,13 +8,12 @@ import {
 
 export const userSignUp = async (data) => {
   const joinUserId = await addUser({
-    email: data.email,
     name: data.name,
     gender: data.gender,
     birth: data.birth,
     address: data.address,
-    detailAddress: data.detailAddress,
-    phoneNumber: data.phoneNumber,
+    email: data.email,
+    phoneNumber: data.phoneNumber
   });
 
   if (joinUserId === null) {
@@ -22,7 +21,11 @@ export const userSignUp = async (data) => {
   }
 
   for (const preference of data.preferences) {
-    await setPreference(joinUserId, preference);
+    try {
+      await setPreference(joinUserId, preference);
+    } catch (err) {
+      console.error(`선호 카테고리 설정 실패: ${err.message}`);
+    }
   }
 
   const user = await getUser(joinUserId);
