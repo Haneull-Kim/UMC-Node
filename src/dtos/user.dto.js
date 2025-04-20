@@ -7,7 +7,6 @@ export const bodyToUser = (body) => {
       gender: body.gender,
       birth : body.birth,
       address: body.address || "",
-      detailAddress: body.detailAddress || "",
       phoneNumber: body.phoneNumber,
       preferences: body.preferences,
     };
@@ -23,7 +22,6 @@ export const responseFromUser = ({ user, preferences }) => {
       gender: u.gender,
       birth: u.birth,
       address: u.address,
-      detailAddress: u.detail_address,
       phoneNumber: u.phone_number,
       preferences: preferences.map((pref) => ({
         id: pref.food_category_id,
