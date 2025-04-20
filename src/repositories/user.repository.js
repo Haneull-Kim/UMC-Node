@@ -1,106 +1,79 @@
 import { pool } from "../db.config.js";
 
-// User 데이터 삽입
-export const addUser = async (data) => {
+export const isEmailDuplicated = async (email) => {
   const conn = await pool.getConnection();
-  const localDateTime = new Date();
-
   try {
-    const [confirm] = await conn.query(
-      `SELECT EXISTS(SELECT 1 FROM user WHERE email = ?) as isExistEmail;`,
-      [data.email]
+    const [rows] = await conn.query(
+      "SELECT id FROM user WHERE email = ?",
+      [email]
     );
+    return rows.length > 0;
+  } catch (err) {
+    throw new Error(`이메일 중복 확인 중 오류가 발생했습니다. (${err})`);
+  } finally {
+    conn.release();
+  }
+};
 
-    if (confirm[0].isExistEmail) {
-      return null;
-    }
-
+export const addUserRepository = async (userDTO) => {
+  const conn = await pool.getConnection();
+  try {
     const [result] = await conn.query(
-      `INSERT INTO user (name, gender, birth, address, status, created_at, email, phone_number, phone_auth)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      `INSERT INTO user (name, gender, birth, address, status, created_at, email, phone_number, phone_auth, image)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        data.name,
-        data.gender,
-        data.birth,
-        data.address,
-        1,
-        localDateTime,
-        data.email,
-        data.phoneNumber,
-        0
+        userDTO.name,
+        userDTO.gender,
+        userDTO.birth,
+        userDTO.address,
+        userDTO.status,
+        userDTO.createdAt,
+        userDTO.email,
+        userDTO.phoneNumber,
+        userDTO.phoneAuth,
+        userDTO.image,
       ]
-    );
-
+    );    
+    
     return result.insertId;
   } catch (err) {
-    throw new Error(
-      `오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`
-    );
+    throw new Error(`회원 등록 중 오류가 발생했습니다. (${err})`);
   } finally {
     conn.release();
   }
 };
 
-
-// 사용자 정보 얻기
-export const getUser = async (userId) => {
+export const addUserOptions = async (userOptions) => {
   const conn = await pool.getConnection();
-
   try {
-    const [user] = await conn.query(
-      `SELECT * FROM user WHERE id = ?;`,
-      [userId]
-    );
-
-    if (user.length === 0) {
-      return null;
-    }
-
-    return user[0]; 
-  } catch (err) {
-    throw new Error(
-      `오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`
-    );
-  } finally {
-    conn.release();
-  }
-};
-
-// 음식 선호 카테고리 매핑
-export const setPreference = async (userId, foodCategoryId) => {
-  const conn = await pool.getConnection();
-
-  try {
+    const values = userOptions.map((opt) => [
+      opt.userId,
+      opt.optionCategoryId
+    ]);
     await conn.query(
-      `INSERT INTO user_food (user_id, food_category_id) VALUES (?, ?);`,
-      [userId, foodCategoryId]
+      `INSERT INTO user_option (user_id, option_category_id) VALUES ?`,
+      [values]
     );
   } catch (err) {
-    throw new Error(
-      `오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`
-    );
+    throw new Error(`사용자 옵션 저장 중 오류가 발생했습니다. (${err})`);
   } finally {
     conn.release();
   }
 };
 
-// 사용자 선호 카테고리 반환
-export const getUserPreferencesByUserId = async (userId) => {
+export const addUserFoods = async (userFoods) => {
   const conn = await pool.getConnection();
-
   try {
-    const [preferences] = await conn.query(
-      "SELECT uf.id, uf.food_category_id, uf.user_id, fc.name " +
-        "FROM user_food uf JOIN food_category fc on uf.food_category_id = fc.id " +
-        "WHERE uf.user_id = ? ORDER BY uf.food_category_id ASC;",
-      [userId] 
+    const values = userFoods.map((food) => [
+      food.userId,
+      food.foodCategoryId
+    ]);
+    await conn.query(
+      `INSERT INTO user_food (user_id, food_category_id) VALUES ?`,
+      [values]
     );
-
-    return preferences;
   } catch (err) {
-    throw new Error(
-      `오류가 발생했어요. 요청 파라미터를 확인해주세요. (${err})`
-    );
+    throw new Error(`사용자 음식 저장 중 오류가 발생했습니다. (${err})`);
   } finally {
     conn.release();
   }

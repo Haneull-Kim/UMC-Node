@@ -1,33 +1,26 @@
-export const bodyToUser = (body) => {
-    const birth = new Date(body.birth);
-  
-    return {
-      email: body.email,
-      name: body.name,
-      gender: body.gender,
-      birth : body.birth,
-      address: body.address || "",
-      detailAddress: body.detailAddress || "",
-      phoneNumber: body.phoneNumber,
-      preferences: body.preferences,
-    };
-};
+export const bodyToUser = (body) => ({
+  name: body.name,
+  gender: body.gender,
+  birth: body.birth,
+  address: body.address,
+  status: body.status ?? 1,
+  createdAt: new Date(),
+  updatedAt: new Date() || null,
+  inactiveDate: new Date() || null,
+  email: body.email,
+  phoneNumber: body.phoneNumber,
+  phoneAuth: body.phoneAuth ?? 0,
+  image: body.image || null
+});
 
-export const responseFromUser = ({ user, preferences }) => {
-    const u = Array.isArray(user) ? user[0] : user;
-  
-    return {
-      id: u.id,
-      email: u.email,
-      name: u.name,
-      gender: u.gender,
-      birth: u.birth,
-      address: u.address,
-      detailAddress: u.detail_address,
-      phoneNumber: u.phone_number,
-      preferences: preferences.map((pref) => ({
-        id: pref.food_category_id,
-        name: pref.name,
-      })),
-    };
-  };
+export const bodyToUserOptions = (userId, optionCategoryIds) =>
+  optionCategoryIds.map((optionCategoryId) => ({
+    userId,
+    optionCategoryId
+  }));
+
+export const bodyToUserFoods = (userId, foodCategoryIds) =>
+  foodCategoryIds.map((foodCategoryId) => ({
+    userId,
+    foodCategoryId
+  }));

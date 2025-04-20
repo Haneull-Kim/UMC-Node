@@ -1,7 +1,9 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { handleUserSignUp } from "./controllers/user.controller.js";
+import { registerUser } from "./controllers/user.controller.js";
+import { addStore, addReview } from "./controllers/store.controller.js";
+import { addMission, addUserMission } from "./controllers/mission.controller.js";
 
 dotenv.config();
 
@@ -17,7 +19,20 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.post("/api/v1/users/signup", handleUserSignUp);
+// 회원가입
+app.post("/api/v1/users/signup", registerUser);
+
+// 가게 추가
+app.post("/api/v1/stores/addStore", addStore);
+
+// 리뷰 추가
+app.post("/api/v1/stores/addReview", addReview);
+
+// 미션 추가
+app.post("/api/v1/missions/addMission", addMission);
+
+// 미션 도전
+app.post("/api/v1/missions/challenge", addUserMission);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

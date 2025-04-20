@@ -1,35 +1,35 @@
-import { responseFromUser } from "../dtos/user.dto.js";
 import {
-  addUser,
-  getUser,
-  getUserPreferencesByUserId,
-  setPreference,
+  bodyToUser,
+  bodyToUserOptions,
+  bodyToUserFoods,
+} from "../dtos/user.dto.js";
+
+import {
+  isEmailDuplicated,
+  addUserRepository,
+  addUserOptions,
+  addUserFoods,
 } from "../repositories/user.repository.js";
 
-export const userSignUp = async (data) => {
-  const joinUserId = await addUser({
-    name: data.name,
-    gender: data.gender,
-    birth: data.birth,
-    address: data.address,
-    email: data.email,
-    phoneNumber: data.phoneNumber
-  });
-
-  if (joinUserId === null) {
-    throw new Error("이미 존재하는 이메일입니다.");
+export const registerUserService = async (body) => {
+  const duplicated = await isEmailDuplicated(body.email);
+  
+  if (duplicated) {
+    throw new Error("이미 사용 중인 이메일입니다.");
   }
 
-  for (const preference of data.preferences) {
-    try {
-      await setPreference(joinUserId, preference);
-    } catch (err) {
-      console.error(`선호 카테고리 설정 실패: ${err.message}`);
-    }
+  const userDTO = bodyToUser(body);
+  const userId = await addUserRepository(userDTO);
+
+  if (body.optionCategoryIds?.length > 0) {
+    const userOptions = bodyToUserOptions(userId, body.optionCategoryIds);
+    await addUserOptions(userOptions);
   }
 
-  const user = await getUser(joinUserId);
-  const preferences = await getUserPreferencesByUserId(joinUserId);
+  if (body.foodCategoryIds?.length > 0) {
+    const userFoods = bodyToUserFoods(userId, body.foodCategoryIds);
+    await addUserFoods(userFoods);
+  }
 
-  return responseFromUser({ user, preferences });
+  return userId;
 };
