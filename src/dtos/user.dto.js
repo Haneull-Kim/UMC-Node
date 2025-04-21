@@ -1,7 +1,7 @@
 export const bodyToUser = (body) => ({
   name: body.name,
   gender: body.gender,
-  birth: body.birth,
+  birth: new Date(body.birth),
   address: body.address,
   status: body.status ?? 1,
   createdAt: new Date(),
