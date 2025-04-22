@@ -2,7 +2,11 @@ import { prisma } from "../db.config.js";
 
 export const isEmailDuplicated = async (email) => {
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true }
+    });
+    
     return !!user;
   } catch (err) {
     throw new Error(`이메일 중복 확인 중 오류가 발생했습니다. (${err})`);

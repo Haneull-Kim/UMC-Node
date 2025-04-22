@@ -9,7 +9,7 @@ export const addMission = async (req, res) => {
   
       res.status(201).json({
         message: "미션이 성공적으로 추가되었습니다.",
-        missionId,
+        missionId: missionId,
       });
     } catch (error) {
       res.status(500).json({
@@ -24,7 +24,7 @@ export const addUserMission = async (req, res) => {
   
       res.status(201).json({
         message: "미션 도전이 성공적으로 등록되었습니다.",
-        userMissionId,
+        userMissionId: userMissionId,
       });
     } catch (error) {
       res.status(400).json({

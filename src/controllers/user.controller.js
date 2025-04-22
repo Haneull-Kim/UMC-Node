@@ -6,7 +6,7 @@ export const registerUser = async (req, res) => {
 
     res.status(201).json({
       message: "회원가입이 완료되었습니다.",
-      userId,
+      userId: userId,
     });
   } catch (error) {
     res.status(400).json({

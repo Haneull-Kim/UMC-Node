@@ -7,63 +7,221 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            BigInt     @id @default(autoincrement()) 
-  name          String     @db.VarChar(20)
-  gender        Int?       
-  birth         DateTime?  @db.Date
-  address       String?    @db.Text
-  status        Int?
-  createdAt     DateTime?  @map("created_at") @db.DateTime
-  updatedAt     DateTime?  @map("updated_at") @db.DateTime
-  inactiveDate  DateTime?  @map("inactive_date") @db.DateTime
-  email         String     @db.VarChar(40) @unique
-  phoneNumber   String?    @map("phone_number") @db.VarChar(11)
-  phoneAuth     Int?       @map("phone_auth")
-  image         String?    @db.Text
+model AddressCategory {
+  id     BigInt   @id @default(autoincrement())
+  name   String?  @db.VarChar(20)
 
-  userFoods      UserFood[]  
-  userOptions    UserOption[] 
+  stores Store[]
 
-  @@map("user") 
+  @@map("address_category")
+}
+
+model AlertCategory {
+  id          BigInt        @id @default(autoincrement())
+  description String?       @db.Text
+
+  userAlerts  UserAlert[]
+
+  @@map("alert_category")
 }
 
 model FoodCategory {
-  id   BigInt   @id @default(autoincrement()) 
-  name String?  @db.VarChar(20)
+  id        BigInt       @id @default(autoincrement())
+  name      String?      @db.VarChar(20)
 
-  userFoods     UserFood[] 
+  userFoods UserFood[]
 
   @@map("food_category")
 }
 
-model UserFood {
-  id               BigInt   @id @default(autoincrement()) 
-  userId           BigInt?  @map("user_id")
-  foodCategoryId   BigInt?  @map("food_category_id")
+model InquireCategory {
+  id        BigInt      @id @default(autoincrement())
+  name      String?     @db.VarChar(20)
 
-  user             User?    @relation(fields: [userId], references: [id]) 
-  foodCategory     FoodCategory? @relation(fields: [foodCategoryId], references: [id]) 
+  inquires  Inquire[]
 
-  @@map("user_food")
+  @@map("inquire_category")
 }
 
 model OptionCategory {
-  id          BigInt   @id @default(autoincrement()) 
-  description String?  @db.Text
+  id          BigInt        @id @default(autoincrement())
+  description String?       @db.Text
 
-  userOptions  UserOption[] 
+  userOptions UserOption[]
 
   @@map("option_category")
 }
 
-model UserOption {
-  id                 BigInt   @id @default(autoincrement()) 
-  userId             BigInt?  @map("user_id")
-  optionCategoryId   BigInt?  @map("option_category_id")
+model StoreCategory {
+  id     BigInt   @id @default(autoincrement())
+  name   String?  @db.VarChar(20)
 
-  user               User?    @relation(fields: [userId], references: [id]) 
-  optionCategory     OptionCategory? @relation(fields: [optionCategoryId], references: [id]) 
+  stores Store[]
+
+  @@map("store_category")
+}
+
+model Store {
+  id                  BigInt        @id @default(autoincrement())
+  name                String?       @db.VarChar(40)
+  status              Int?
+  address             String?       @db.Text
+  storeCategoryId     BigInt?       @map("store_category_id")
+  addressCategoryId   BigInt?       @map("address_category_id")
+  image               String?       @db.Text
+  createdAt           DateTime?     @map("created_at") @db.DateTime
+  updatedAt           DateTime?     @map("updated_at") @db.DateTime
+
+  storeCategory     StoreCategory? @relation(fields: [storeCategoryId], references: [id])
+  addressCategory   AddressCategory? @relation(fields: [addressCategoryId], references: [id])
+
+  missions          Mission[]
+  reviews           Review[]
+
+  @@map("store")
+}
+
+model Mission {
+  id              BigInt        @id @default(autoincrement())
+  storeId         BigInt?       @map("store_id")
+  description     String?       @db.Text
+  pointCalculate  String?       @db.Text @map("point_calculate")
+  endDate         DateTime?     @db.Date @map("end_date")
+  createdAt       DateTime?     @map("created_at") @db.DateTime
+  updatedAt       DateTime?     @map("updated_at") @db.DateTime
+
+  store         Store?        @relation(fields: [storeId], references: [id])
+  userMissions  UserMission[]
+
+  @@map("mission")
+}
+
+model User {
+  id           BigInt        @id @default(autoincrement())
+  name         String        @db.VarChar(20)
+  gender       Int?
+  birth        DateTime?     @db.Date
+  address      String?       @db.Text
+  status       Int?
+  createdAt    DateTime?     @map("created_at") @db.DateTime
+  updatedAt    DateTime?     @map("updated_at") @db.DateTime
+  inactiveDate DateTime?     @map("inactive_date") @db.DateTime
+  email        String        @db.VarChar(40) @unique
+  phoneNumber  String?       @db.VarChar(13) @map("phone_number")
+  phoneAuth    Int?          @map("phone_auth")
+  image        String?       @db.Text
+
+  changePoints  ChangePoint[]
+  inquires      Inquire[]
+  points        Point[]
+  reviews       Review[]
+  userAlerts    UserAlert[]
+  userFoods     UserFood[]
+  userMissions  UserMission[]
+  userOptions   UserOption[]
+
+  @@map("user")
+}
+
+model ChangePoint {
+  id              BigInt      @id @default(autoincrement())
+  userId          BigInt?     @map("user_id")
+  description     String?     @db.Text
+  pointCalculate  String?     @db.Text @map("point_calculate")
+  createdAt       DateTime?   @map("created_at") @db.DateTime
+
+  user  User? @relation(fields: [userId], references: [id])
+
+  @@map("change_point")
+}
+
+model Inquire {
+  id                BigInt           @id @default(autoincrement())
+  userId            BigInt?          @map("user_id")
+  inquireCategoryId BigInt?          @map("inquire_category_id")
+  title             String?          @db.VarChar(40)
+  content           String?          @db.Text
+  image             String?          @db.Text
+  answer            String?          @db.Text
+  createdAt         DateTime?        @map("created_at") @db.DateTime
+  updatedAt         DateTime?        @map("updated_at") @db.DateTime
+
+  user              User?            @relation(fields: [userId], references: [id])
+  inquireCategory   InquireCategory? @relation(fields: [inquireCategoryId], references: [id])
+
+  @@map("inquire")
+}
+
+model Point {
+  id      BigInt @id @default(autoincrement())
+  userId  BigInt? @map("user_id")
+  point   BigInt? 
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("point")
+}
+
+model Review {
+  id         BigInt     @id @default(autoincrement())
+  userId     BigInt?    @map("user_id")
+  storeId    BigInt?    @map("store_id")
+  rate       Float?
+  content    String?    @db.Text
+  image      String?    @db.Text
+  answer     String?    @db.Text
+  createdAt  DateTime?  @map("created_at") @db.DateTime
+  updatedAt  DateTime?  @map("updated_at") @db.DateTime
+
+  user  User?  @relation(fields: [userId], references: [id])
+  store Store? @relation(fields: [storeId], references: [id])
+
+  @@map("review")
+}
+
+model UserAlert {
+  id               BigInt         @id @default(autoincrement())
+  userId           BigInt?        @map("user_id")
+  alertCategoryId  BigInt?        @map("alert_category_id")
+
+  user          User?         @relation(fields: [userId], references: [id])
+  alertCategory AlertCategory? @relation(fields: [alertCategoryId], references: [id])
+
+  @@map("user_alert")
+}
+
+model UserFood {
+  id              BigInt        @id @default(autoincrement())
+  userId          BigInt?       @map("user_id")
+  foodCategoryId  BigInt?       @map("food_category_id")
+
+  user         User?        @relation(fields: [userId], references: [id])
+  foodCategory FoodCategory? @relation(fields: [foodCategoryId], references: [id])
+
+  @@map("user_food")
+}
+
+model UserMission {
+  id         BigInt     @id @default(autoincrement())
+  userId     BigInt?    @map("user_id")
+  missionId  BigInt?    @map("mission_id")
+  status     Int?
+  createdAt  DateTime?  @map("created_at") @db.DateTime
+  updatedAt  DateTime?  @map("updated_at") @db.DateTime
+
+  user    User?    @relation(fields: [userId], references: [id])
+  mission Mission? @relation(fields: [missionId], references: [id])
+
+  @@map("user_mission")
+}
+
+model UserOption {
+  id                BigInt         @id @default(autoincrement())
+  userId            BigInt?        @map("user_id")
+  optionCategoryId  BigInt?        @map("option_category_id")
+
+  user           User?          @relation(fields: [userId], references: [id])
+  optionCategory OptionCategory? @relation(fields: [optionCategoryId], references: [id])
 
   @@map("user_option")
 }

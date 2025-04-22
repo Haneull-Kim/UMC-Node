@@ -1,7 +1,8 @@
 import {
   addStoreRepository,
   checkStoreExists,
-  addReviewRepository
+  addReviewRepository,
+  getStoreReviewsRepository
 } from "../repositories/store.repository.js";
 
 import {
@@ -27,4 +28,15 @@ export const addReviewService = async (body) => {
 
   const reviewId = await addReviewRepository(reviewDTO);
   return reviewId;
+};
+
+export const getStoreReviewsService = async (storeId, cursor) => {
+  const storeExists = await checkStoreExists(storeId);
+  
+  if (!storeExists) {
+    throw new Error("존재하지 않는 가게입니다.");
+  }
+
+  const reviews = await getStoreReviewsRepository(storeId, cursor);
+  return reviews;
 };

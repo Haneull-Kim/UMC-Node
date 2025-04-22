@@ -2,7 +2,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { registerUser } from "./controllers/user.controller.js";
-import { addStore, addReview } from "./controllers/store.controller.js";
+import { addStore, addReview, getStoreReviews } from "./controllers/store.controller.js";
 import { addMission, addUserMission } from "./controllers/mission.controller.js";
 
 dotenv.config();
@@ -33,6 +33,9 @@ app.post("/api/v1/missions/addMission", addMission);
 
 // 미션 도전
 app.post("/api/v1/missions/challenge", addUserMission);
+
+// 가게 리뷰 조회
+app.get("/api/v1/stores/:storeId/reviews", getStoreReviews);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

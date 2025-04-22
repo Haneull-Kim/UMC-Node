@@ -1,4 +1,4 @@
-import { pool } from "../db.config.js";
+import { pool, prisma } from "../db.config.js";
 
 // 스토어 추가
 export const addStoreRepository = async (storeDTO) => {
@@ -27,14 +27,14 @@ export const addStoreRepository = async (storeDTO) => {
 
 // 스토어 존재 여부 확인
 export const checkStoreExists = async (storeId) => {
-  const conn = await pool.getConnection();
   try {
-    const [rows] = await conn.query("SELECT * FROM store WHERE id = ?", [storeId]);
-    return rows.length > 0;
+    const result = await prisma.store.findUnique({
+      where: { id: BigInt(storeId) }, 
+      select: { id: true }
+    });
+    return !!result;
   } catch (err) {
     throw new Error(`가게 존재 여부 조회 중 오류가 발생했습니다. (${err})`);
-  } finally {
-    conn.release();
   }
 };
 
@@ -59,5 +59,29 @@ export const addReviewRepository = async (reviewDTO) => {
     throw new Error(`리뷰 추가 중 오류가 발생했습니다. (${err})`);
   } finally {
     conn.release();
+  }
+};
+
+export const getStoreReviewsRepository = async (storeId, cursor) => {
+  try {
+    const reviews = await prisma.review.findMany({
+      where: {
+        storeId: BigInt(storeId),
+        ...(cursor && { id: { gt: cursor } }) // cursor가 존재하면 id > cursor 조건 추가
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: {
+            name: true 
+          }
+        }
+      },
+      take: 10 
+    });
+
+    return reviews;
+  } catch (err) {
+    throw new Error(`리뷰 조회 중 오류가 발생했습니다. (${err})`);
   }
 };
