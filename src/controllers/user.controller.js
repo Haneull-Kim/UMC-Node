@@ -21,10 +21,10 @@ export const registerUser = async (req, res) => {
 };
 
 export const getUserReviews = async (req, res) => {
-  const { userId } = req.params; 
-  const { cursor } = req.query;
-
   try {
+    const { userId } = req.params; 
+    const { cursor } = req.query;
+    
     const { reviews, nextCursor } = await getUserReviewsService(userId, cursor); 
 
     return res.status(200).json({

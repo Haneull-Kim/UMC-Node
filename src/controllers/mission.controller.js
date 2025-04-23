@@ -97,7 +97,7 @@ export const completeUserMission = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: `미션 완료 처리 중 오류 발생: ${error.message}`
+      message: error.message
     });
   }
 };
