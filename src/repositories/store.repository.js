@@ -1,31 +1,28 @@
-import { pool, prisma } from "../db.config.js";
+import { prisma } from "../db.config.js";
 
-// 스토어 추가
 export const addStoreRepository = async (storeDTO) => {
-  const conn = await pool.getConnection();
   try {
-    const [result] = await conn.query(
-      `INSERT INTO store (name, status, address, store_category_id, image, address_category_id, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [
-        storeDTO.name,
-        storeDTO.status,
-        storeDTO.address,
-        storeDTO.store_category_id,
-        storeDTO.image,
-        storeDTO.address_category_id,
-        storeDTO.createdAt
-      ]
-    );
-    return result.insertId;
+    const store = await prisma.store.create({
+      data: {
+        name: storeDTO.name,
+        status: storeDTO.status,
+        address: storeDTO.address,
+        image: storeDTO.image,
+        addressCategory: {
+          connect: { id: storeDTO.address_category_id }
+        },
+        storeCategory: {
+          connect: { id: storeDTO.store_category_id }
+        },
+        createdAt: storeDTO.createdAt
+      }
+    });    
+    return store.id.toString();
   } catch (err) {
     throw new Error(`가게 추가 중 오류가 발생했습니다. (${err})`);
-  } finally {
-    conn.release();
   }
 };
 
-// 스토어 존재 여부 확인
 export const checkStoreExists = async (storeId) => {
   try {
     const result = await prisma.store.findUnique({
@@ -38,27 +35,25 @@ export const checkStoreExists = async (storeId) => {
   }
 };
 
-// 리뷰 추가
 export const addReviewRepository = async (reviewDTO) => {
-  const conn = await pool.getConnection();
   try {
-    const [result] = await conn.query(
-      `INSERT INTO review (user_id, store_id, content, rate, image, created_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [
-        reviewDTO.userId,
-        reviewDTO.storeId,
-        reviewDTO.content,
-        reviewDTO.rate,
-        reviewDTO.image,
-        reviewDTO.createdAt
-      ]
-    );
-    return result.insertId;
+    const review = await prisma.review.create({
+      data: {
+        content: reviewDTO.content,
+        rate: reviewDTO.rate,
+        image: reviewDTO.image,
+        createdAt: reviewDTO.createdAt,
+        user: {
+          connect: { id: BigInt(reviewDTO.userId) }
+        },
+        store: {
+          connect: { id: BigInt(reviewDTO.storeId) }
+        }
+      }
+    });
+    return review.id.toString();
   } catch (err) {
     throw new Error(`리뷰 추가 중 오류가 발생했습니다. (${err})`);
-  } finally {
-    conn.release();
   }
 };
 
@@ -80,7 +75,9 @@ export const getStoreReviewsRepository = async (storeId, cursor) => {
       take: 10 
     });
 
-    return reviews;
+    const nextCursor = reviews.length ? reviews[reviews.length - 1].id : null;
+
+    return { reviews, nextCursor };
   } catch (err) {
     throw new Error(`리뷰 조회 중 오류가 발생했습니다. (${err})`);
   }

@@ -1,9 +1,23 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { registerUser } from "./controllers/user.controller.js";
-import { addStore, addReview, getStoreReviews } from "./controllers/store.controller.js";
-import { addMission, addUserMission } from "./controllers/mission.controller.js";
+
+import { 
+  registerUser, 
+  getUserReviews 
+} from "./controllers/user.controller.js";
+import { 
+  addStore, 
+  addReview, 
+  getStoreReviews 
+} from "./controllers/store.controller.js";
+import { 
+  addMission, 
+  addUserMission, 
+  getStoreMissions, 
+  getUserMissions,
+  completeUserMission
+} from "./controllers/mission.controller.js";
 
 dotenv.config();
 
@@ -36,6 +50,18 @@ app.post("/api/v1/missions/challenge", addUserMission);
 
 // 가게 리뷰 조회
 app.get("/api/v1/stores/:storeId/reviews", getStoreReviews);
+
+// 내가 쓴 리뷰 조회
+app.get("/api/v1/users/:userId/reviews", getUserReviews);
+
+// 특정 가게의 미션 조회
+app.get("/api/v1/missions/:storeId/getStoreMissions", getStoreMissions);
+
+// 도전중인 미션 목록
+app.get("/api/v1/missions/:userId/getUserMissions", getUserMissions);
+
+// 미션 완료 처리
+app.patch("/api/v1/missions/complete", completeUserMission);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

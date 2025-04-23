@@ -2,7 +2,7 @@ export const bodyToMission = (body) => ({
     storeId: body.storeId,
     description: body.description,
     pointCalculate: body.pointCalculate,
-    endDate: body.endDate,
+    endDate: new Date(body.endDate),
     createdAt: new Date(),
     updatedAt: new Date() || null,
 });

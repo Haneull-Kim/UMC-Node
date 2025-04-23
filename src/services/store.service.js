@@ -37,6 +37,6 @@ export const getStoreReviewsService = async (storeId, cursor) => {
     throw new Error("존재하지 않는 가게입니다.");
   }
 
-  const reviews = await getStoreReviewsRepository(storeId, cursor);
-  return reviews;
+  const { reviews, nextCursor } = await getStoreReviewsRepository(storeId, cursor); 
+  return { reviews, nextCursor };
 };

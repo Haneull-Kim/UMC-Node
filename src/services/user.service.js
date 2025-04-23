@@ -9,6 +9,7 @@ import {
   addUserRepository,
   addUserOptions,
   addUserFoods,
+  getUserReviewsRepository
 } from "../repositories/user.repository.js";
 
 export const registerUserService = async (body) => {
@@ -32,4 +33,13 @@ export const registerUserService = async (body) => {
   }
 
   return userId;
+};
+
+export const getUserReviewsService = async (userId, cursor) => {
+  try {
+    const { reviews, nextCursor } = await getUserReviewsRepository(userId, cursor); 
+    return { reviews, nextCursor };
+  } catch (err) {
+    throw new Error(`리뷰 목록 조회 중 오류가 발생했습니다. (${err})`);
+  }
 };

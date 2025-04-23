@@ -41,9 +41,7 @@ export const getStoreReviews = async (req, res) => {
     const storeId = req.params.storeId;
     const cursor = req.query.cursor ? parseInt(req.query.cursor) : null;
   
-    const reviews = await getStoreReviewsService(storeId, cursor);
-
-    const nextCursor = reviews.length ? reviews[reviews.length - 1].id : null;
+    const { reviews, nextCursor } = await getStoreReviewsService(storeId, cursor);
 
     res.status(200).json({
       message: "리뷰 목록을 성공적으로 불러왔습니다.",

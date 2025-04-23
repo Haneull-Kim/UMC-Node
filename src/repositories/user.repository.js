@@ -61,3 +61,29 @@ export const addUserFoods = async (userFoods) => {
     throw new Error(`사용자 음식 저장 중 오류가 발생했습니다. (${err})`);
   }
 };
+
+export const getUserReviewsRepository = async (userId, cursor) => {
+  try {
+    const reviews = await prisma.review.findMany({
+      where: {
+        userId: BigInt(userId),
+        ...(cursor && { id: { gt: cursor } }) // 커서가 존재하면 id > cursor 조건 추가
+      },
+      orderBy: { createdAt: "desc" }, 
+      include: {
+        store: { 
+          select: { 
+            name: true 
+          }
+        }
+      },
+      take: 10 
+    });
+
+    const nextCursor = reviews.length ? reviews[reviews.length - 1].id : null;
+
+    return { reviews, nextCursor };
+  } catch (err) {
+    throw new Error(`리뷰 조회 중 오류가 발생했습니다. (${err})`);
+  }
+};
