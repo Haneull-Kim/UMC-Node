@@ -12,7 +12,11 @@ import {
   getUserReviewsRepository
 } from "../repositories/user.repository.js";
 
-import { DuplicateUserEmailError } from "../errors/user.error.js";
+import { 
+  DuplicateUserEmailError, 
+  GetUserReviewsError,
+  MissingUserIdError
+} from "../errors/user.error.js";
 
 export const registerUserService = async (body) => {
   const duplicated = await isEmailDuplicated(body.email);
@@ -38,10 +42,19 @@ export const registerUserService = async (body) => {
 };
 
 export const getUserReviewsService = async (userId, cursor) => {
+
+  if (!userId || isNaN(Number(userId))) {
+    throw new MissingUserIdError("userId가 누락되었거나 유효하지 않습니다.", { userId, cursor });
+  }
+
   try {
     const { reviews, nextCursor } = await getUserReviewsRepository(userId, cursor); 
     return { reviews, nextCursor };
   } catch (err) {
-    throw new Error(`리뷰 목록 조회 중 오류가 발생했습니다. (${err})`);
+    throw new GetUserReviewsError("리뷰 목록 조회 중 오류가 발생했습니다.", {
+      userId,
+      cursor,
+      originalError: err.message,
+    });
   }
 };

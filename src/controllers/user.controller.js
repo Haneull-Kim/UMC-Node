@@ -5,7 +5,12 @@ import {
 
 import { serializeBigInt } from "../utils/jsonBigInt.js";
 import { StatusCodes } from 'http-status-codes';
-import { DuplicateUserEmailError } from "../errors/user.error.js";
+
+import { 
+  DuplicateUserEmailError, 
+  GetUserReviewsError,
+  MissingUserIdError
+} from "../errors/user.error.js";
 
 export const registerUser = async (req, res) => {
   try {
@@ -31,16 +36,19 @@ export const getUserReviews = async (req, res) => {
     
     const { reviews, nextCursor } = await getUserReviewsService(userId, cursor); 
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).success({
       message: "리뷰 목록을 성공적으로 불러왔습니다.",
-      reviews: serializeBigInt(reviews), 
+      reviews: serializeBigInt(reviews),
       pagination: {
-        cursor: serializeBigInt(nextCursor) 
+        cursor: serializeBigInt(nextCursor)
       },
     });
-  } catch (err) {
-    return res.status(500).json({
-      message: err.message
-    });
+  } catch (error) {
+
+    if (error instanceof GetUserReviewsError || error instanceof MissingUserIdError) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).fail(error.errorCode, error.reason, error.data);
+    }
+    
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).fail("A000", "리뷰 목록 조회 중 서버 오류가 발생했습니다.");
   }
 };
