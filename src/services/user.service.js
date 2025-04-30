@@ -12,11 +12,13 @@ import {
   getUserReviewsRepository
 } from "../repositories/user.repository.js";
 
+import { DuplicateUserEmailError } from "../errors/user.error.js";
+
 export const registerUserService = async (body) => {
   const duplicated = await isEmailDuplicated(body.email);
   
   if (duplicated) {
-    throw new Error("이미 사용 중인 이메일입니다.");
+    throw new DuplicateUserEmailError("이미 존재하는 이메일입니다.", { email: body.email });
   }
 
   const userDTO = bodyToUser(body);

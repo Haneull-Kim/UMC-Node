@@ -4,19 +4,23 @@ import {
  } from "../services/user.service.js";
 
 import { serializeBigInt } from "../utils/jsonBigInt.js";
+import { StatusCodes } from 'http-status-codes';
+import { DuplicateUserEmailError } from "../errors/user.error.js";
 
 export const registerUser = async (req, res) => {
   try {
     const userId = await registerUserService(req.body);
 
-    res.status(201).json({
+    res.status(StatusCodes.CREATED).success({
       message: "회원가입이 완료되었습니다.",
-      userId: userId,
+      userId,
     });
   } catch (error) {
-    res.status(400).json({
-      message: error.message,
-    });
+    if (error instanceof DuplicateUserEmailError) {
+      return res.status(StatusCodes.BAD_REQUEST).fail(error.errorCode, error.reason, error.data);
+    }
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).fail("A000", "서버 오류가 발생했습니다.");
   }
 };
 
