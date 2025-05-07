@@ -26,10 +26,10 @@ export const addStore = async (req, res) => {
           type: "object",
           required: ["name", "address", "store_category_id", "address_category_id"],
           properties: {
-            name: { type: "string", example: "맛있는 가게" },
-            address: { type: "string", example: "서울시 강남구" },
-            store_category_id: { type: "integer", example: 1 },
-            address_category_id: { type: "integer", example: 1 },
+            name: { type: "string", example: "필동치킨" },
+            address: { type: "string", example: "서울시 중구 필동로 치킨동" },
+            store_category_id: { type: "integer", example: 5 },
+            address_category_id: { type: "integer", example: 12 },
             image: { type: "string", example: "image_url.jpg" }
           }
         }
@@ -49,7 +49,7 @@ export const addStore = async (req, res) => {
               type: "object",
               properties: {
                 message: { type: "string", example: "가게가 성공적으로 추가되었습니다." },
-                storeId: { type: "string", example: "101" }
+                storeId: { type: "string", example: "3" }
               }
             }
           }
@@ -57,8 +57,8 @@ export const addStore = async (req, res) => {
       }
     }
   }
-  #swagger.responses[400] = {
-    description: "가게 이름이 없을 경우",
+  #swagger.responses[500] = {
+    description: "가게 이름이 누락된 경우",
     content: {
       "application/json": {
         schema: {
@@ -70,7 +70,7 @@ export const addStore = async (req, res) => {
               properties: {
                 errorCode: { type: "string", example: "S002" },
                 reason: { type: "string", example: "가게 이름은 필수입니다." },
-                data: { type: "object", example: { address: "서울시 강남구", store_category_id: 1, address_category_id: 1, image: "image_url.jpg" } }
+                data: { type: "object", example: { address: "서울시 중구 필동로 치킨동", store_category_id: 5, address_category_id: 12, image: "image_url.jpg" } }
               }
             },
             success: { type: "object", nullable: true, example: null }
@@ -111,9 +111,9 @@ export const addReview = async (req, res) => {
           required: ["userId", "storeId", "rate", "content"],
           properties: {
             userId: { type: "integer", example: 1 },
-            storeId: { type: "integer", example: 1 },
-            rate: { type: "integer", example: 5 },
-            content: { type: "string", example: "정말 맛있어요!" },
+            storeId: { type: "integer", example: 3 },
+            rate: { type: "integer", example: 4 },
+            content: { type: "string", example: "맛있어요, 또 방문할게요!" },
             image: { type: "string", example: "review_image.jpg" }
           }
         }
@@ -133,7 +133,7 @@ export const addReview = async (req, res) => {
               type: "object",
               properties: {
                 message: { type: "string", example: "리뷰가 성공적으로 추가되었습니다." },
-                reviewId: { type: "string", example: "2001" }
+                reviewId: { type: "string", example: "2" }
               }
             }
           }
@@ -154,7 +154,7 @@ export const addReview = async (req, res) => {
               properties: {
                 errorCode: { type: "string", example: "S001" },
                 reason: { type: "string", example: "가게가 존재하지 않습니다." },
-                data: { type: "object", example: { storeId: 1 } }
+                data: { type: "object", example: { storeId: 5 } }
               }
             },
             success: { type: "object", nullable: true, example: null }
@@ -191,17 +191,17 @@ export const getStoreReviews = async (req, res) => {
     description: '가게 ID',
     required: true,
     type: 'string', 
-    example: '1'
+    example: '2'
   }
   #swagger.parameters['cursor'] = {
     in: 'query',
-    description: '페이지네이션을 위한 커서 (선택적)',
+    description: '페이지네이션을 위한 커서',
     required: false,
     type: 'string', 
-    example: '10' 
+    example: 'null' 
   }
   #swagger.responses[200] = {
-    description: "리뷰 목록 조회 성공",
+    description: "가게 리뷰 조회 성공",
     content: {
       "application/json": {
         schema: {
@@ -219,24 +219,24 @@ export const getStoreReviews = async (req, res) => {
                     type: "object",
                     properties: {
                       id: {type: "string", example: "1" },
-                      userId: { type: "string", example: "2001" },
-                      storeId: { type: "string", example: "2001" },
-                      rate: { type: "integer", example: 5 },
-                      content: { type: "string", example: "정말 맛있어요!" },
+                      userId: { type: "string", example: "1" },
+                      storeId: { type: "string", example: "2" },
+                      rate: { type: "integer", example: 4 },
+                      content: { type: "string", example: "맛있어요, 또 방문할게요!" },
                       image: {type: "string", nullable: true, example: null },
                       answer: {type: "string", nullable: true, example: null },
-                      createdAt: { type: "string", format: "date-time", example: "2025-05-01T10:00:00Z" },
+                      createdAt: { type: "string", format: "date-time", example: "2025-04-30T11:51:18.000Z" },
                       user: {
                         type: "object",
                         properties: {
-                          name: { type: "string", example: "홍길동" }
+                          name: { type: "string", example: "fff" }
                         }
                       }
                     }
                   }
                 },
                 pagination: {
-                  cursor: { type: "string", example: "10" }
+                  cursor: { type: "string", example: "1" }
                 }
               }
             }
@@ -258,7 +258,7 @@ export const getStoreReviews = async (req, res) => {
               properties: {
                 errorCode: { type: "string", example: "S001" },
                 reason: { type: "string", example: "가게가 존재하지 않습니다." },
-                data: { type: "object", example: { storeId: "101" } }
+                data: { type: "object", example: { storeId: "7" } }
               }
             },
             success: { type: "object", nullable: true, example: null }

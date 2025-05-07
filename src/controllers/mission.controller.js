@@ -21,7 +21,7 @@ import { StatusCodes } from 'http-status-codes';
 export const addMission = async (req, res) => {
 
 /*
-  #swagger.summary = '미션 추가 API'
+  #swagger.summary = '가게 미션 추가 API'
   #swagger.tags = ['Mission']
   #swagger.requestBody = {
     required: true,
@@ -31,17 +31,17 @@ export const addMission = async (req, res) => {
           type: "object",
           required: ["storeId", "description", "pointCalculate", "endDate"],
           properties: {
-            storeId: { type: "integer", example: 1 },
-            description: { type: "string", example: "3만원 이상 구매 시" },
-            pointCalculate: { type: "string", example: "/ 100 + 10" },
-            endDate: { type: "string", format: "date", example: "2025-06-01" }
+            storeId: { type: "integer", example: 2 },
+            description: { type: "string", example: "인스타그램 인증샷 올리기" },
+            pointCalculate: { type: "string", example: "기본 100점 + 해시태그 50점" },
+            endDate: { type: "string", format: "date", example: "2025-05-31" }
           }
         }
       }
     }
   }
   #swagger.responses[201] = {
-    description: "미션 추가 성공",
+    description: "가게 미션 추가 성공",
     content: {
       "application/json": {
         schema: {
@@ -53,7 +53,7 @@ export const addMission = async (req, res) => {
               type: "object",
               properties: {
                 message: { type: "string", example: "미션이 성공적으로 추가되었습니다." },
-                missionId: { type: "string", example: "101" }
+                missionId: { type: "string", example: "2" }
               }
             }
           }
@@ -74,7 +74,7 @@ export const addMission = async (req, res) => {
               properties: {
                 errorCode: { type: "string", example: "M001" },
                 reason: { type: "string", example: "해당 가게가 존재하지 않습니다." },
-                data: { type: "object", example: { storeId: 1 } }
+                data: { type: "object", example: { storeId: 5 } }
               }
             },
             success: { type: "object", nullable: true, example: null }
@@ -102,7 +102,7 @@ export const addMission = async (req, res) => {
 export const addUserMission = async (req, res) => {
 
 /*
-  #swagger.summary = '진행 중인 등록 API'
+  #swagger.summary = '진행 중인 미션 추가 API'
   #swagger.tags = ['Mission']
   #swagger.requestBody = {
     required: true,
@@ -112,15 +112,15 @@ export const addUserMission = async (req, res) => {
           type: "object",
           required: ["userId", "missionId"],
           properties: {
-            userId: { type: "integer", example: 1 },
-            missionId: { type: "integer", example: 1 }
+            userId: { type: "integer", example: 2 },
+            missionId: { type: "integer", example: 2 }
           }
         }
       }
     }
   }
   #swagger.responses[201] = {
-    description: "유저 미션 등록 성공",
+    description: "진행 중인 미션 추가 성공",
     content: {
       "application/json": {
         schema: {
@@ -132,7 +132,7 @@ export const addUserMission = async (req, res) => {
               type: "object",
               properties: {
                 message: { type: "string", example: "미션이 성공적으로 등록되었습니다." },
-                userMissionId: { type: "string", example: "101" }
+                userMissionId: { type: "string", example: "2" }
               }
             }
           }
@@ -141,7 +141,7 @@ export const addUserMission = async (req, res) => {
     }
   }
   #swagger.responses[400] = {
-    description: "이미 도전 중인 미션일 경우",
+    description: "이미 추가된 미션일 경우",
     content: {
       "application/json": {
         schema: {
@@ -153,7 +153,7 @@ export const addUserMission = async (req, res) => {
               properties: {
                 errorCode: { type: "string", example: "M002" },
                 reason: { type: "string", example: "이미 해당 미션에 도전 중입니다. " },
-                data: { type: "object", example: { userId: 1, missionId: 1 } }
+                data: { type: "object", example: { userId: 2, missionId: 2 } }
               }
             },
             success: { type: "object", nullable: true, example: null }
@@ -182,14 +182,21 @@ export const addUserMission = async (req, res) => {
 export const getStoreMissions = async (req, res) => {
 
 /*
-  #swagger.summary = '가게별 미션 조회 API'
+  #swagger.summary = '가게 미션 조회 API'
   #swagger.tags = ['Mission']
   #swagger.parameters['storeId'] = {
     in: 'path',
     description: '가게 ID',
     required: true,
     type: 'string', 
-    example: '1'
+    example: '2'
+  }
+  #swagger.parameters['cursor'] = {
+    in: 'query',
+    description: '페이지네이션을 위한 커서',
+    required: false,
+    type: 'string',
+    example: 'null'
   }
   #swagger.responses[200] = {
     description: "미션 목록 조회 성공",
@@ -201,17 +208,26 @@ export const getStoreMissions = async (req, res) => {
             resultType: { type: "string", example: "SUCCESS" },
             error: { type: "object", nullable: true, example: null },
             success: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  id: { type: "string", example: "1" },
-                  storeId: { type: "string", example: "1" },
-                  description: { type: "string", example: "3만원 이상 구매 시" },
-                  pointCalculate: { type: "string", example: "/100 + 10" },
-                  endDate: { type: "string", format: "date", example: "2025-06-01" },
-                  createdAt: { type: "string", format: "date-time", example: "2025-06-01T00:00:00Z" },
-                  updatedAt: { type: "string", format: "date-time", example: "2025-06-01T00:00:00Z" }
+              type: "object",
+              properties: {
+                message: { type: "string", example: "미션 목록을 성공적으로 불러왔습니다." },
+                missions: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: {type: "string", example: "2" },
+                      storeId: { type: "string", example: "2" },
+                      description: { type: "string", example: "인스타그램 인증샷 올리기" },
+                      pointCalculate: { type: "string", example: "기본 100점 + 해시태그 50점" },
+                      endDate: { type: "string", format: "date-time", example: "2025-05-31T00:00:00.000Z" },
+                      createdAt: { type: "string", format: "date-time", example: "2025-04-30T12:11:26.000Z" },
+                      updatedAt: {type: "string", nullable: true, example: null },
+                    }
+                  }
+                },
+                pagination: {
+                  cursor: { type: "string", example: "2" }
                 }
               }
             }
@@ -220,7 +236,7 @@ export const getStoreMissions = async (req, res) => {
       }
     }
   }
-  #swagger.responses[404] = {
+  #swagger.responses[500] = {
     description: "가게가 존재하지 않을 경우",
     content: {
       "application/json": {
@@ -233,7 +249,7 @@ export const getStoreMissions = async (req, res) => {
               properties: {
                 errorCode: { type: "string", example: "M001" },
                 reason: { type: "string", example: "해당 가게가 존재하지 않습니다." },
-                data: { type: "object", example: { storeId: "1" } }
+                data: { type: "object", example: { storeId: "5" } }
               }
             },
             success: { type: "object", nullable: true, example: null }
@@ -268,17 +284,31 @@ export const getStoreMissions = async (req, res) => {
 export const getUserMissions = async (req, res) => {
 
 /*
-  #swagger.summary = '유저 미션 목록 조회 API'
+  #swagger.summary = '진행 중인 미션 조회 API'
   #swagger.tags = ['Mission']
   #swagger.parameters['userId'] = {
     in: 'path',
-    description: '유저 ID',
+    description: '사용자 ID',
     required: true,
     type: 'string', 
+    example: '2'
+  }
+  #swagger.parameters['cursor'] = {
+    in: 'query',
+    description: '페이지네이션을 위한 커서',
+    required: false,
+    type: 'string',
+    example: 'null'
+  }
+    #swagger.parameters['status'] = {
+    in: 'query',
+    description: '페이지네이션을 위한 커서',
+    required: false,
+    type: 'string',
     example: '1'
   }
   #swagger.responses[200] = {
-    description: "유저 미션 목록 조회 성공",
+    description: "진행 중인 미션 조회 성공",
     content: {
       "application/json": {
         schema: {
@@ -287,37 +317,38 @@ export const getUserMissions = async (req, res) => {
             resultType: { type: "string", example: "SUCCESS" },
             error: { type: "object", nullable: true, example: null },
             success: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  message: { type: "string", example: "진행 중인 미션 목록을 성공적으로 불러왔습니다. " },
-                  missions: {
+              type: "object",
+              properties: {
+                message: { type: "string", example: "진행 중인 미션 목록을 성공적으로 불러왔습니다." },
+                missions: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: {type: "string", example: "2" },
+                      userId: { type: "string", example: "2" },
+                      missionId: { type: "string", example: "2" },
+                      status: { type: "integer", example: 1 },
+                      createdAt: { type: "string", format: "date-time", example: "2025-04-30T12:12:03.000Z" },
+                      updatedAt: {type: "string", nullable: true, example: null },
+                      mission: {
                         type: "object",
                         properties: {
-                          id: { type: "string", example: "101" },
-                          userId: { type: "string", example: "101" },
-                          missionId: { type: "string", example: "101" },
-                          status: { type: "integer", example: 1 },
-                          createdAt: { type: "string", format: "date-time", example: "2025-06-01T00:00:00Z" },
-                          updatedAt: { type: "string", format: "date-time", example: "2025-06-01T00:00:00Z" },
-                          mission: {
-                            type: "object",
-                            properties: {
-                              description: { type: "string", example: "3만원 이상 구매 시" },
-                              pointCalculate: { type: "string", example: "/ 100 + 10" },
-                            }
-                          },
+                          description: { type: "string", example: "인스타그램 인증샷 올리기" },
+                          pointCalculate: { type: "string", example: "기본 100점 + 해시태그 50점" },
                           store: {
                             type: "object",
                             properties: {
-                              name: { type: "string", example: "맛있는 가게" }
+                              name: { type: "string", example: "필동치킨" },
                             }
                           }
                         }
                       }
                     }
                   }
+                },
+                pagination: {
+                  cursor: { type: "string", example: "2" }
                 }
               }
             }
@@ -327,7 +358,7 @@ export const getUserMissions = async (req, res) => {
     }
   }
   #swagger.responses[500] = {
-    description: "userId 누락",
+    description: "사용자 ID가 누락된 경우",
     content: {
       "application/json": {
         schema: {
@@ -339,12 +370,7 @@ export const getUserMissions = async (req, res) => {
               properties: {
                 errorCode: { type: "string", example: "M006" },
                 reason: { type: "string", example: "userId가 누락되었거나 유효하지 않습니다. " },
-                data: { 
-                  type: "object", 
-                  example: {
-                    userId: ":userId"
-                  }
-                }
+                data: { type: "object", example: { userId: ":userId", cursor: "null" } }
               }
             },
             success: { type: "object", nullable: true, example: null }
@@ -380,7 +406,7 @@ export const getUserMissions = async (req, res) => {
 export const completeUserMission = async (req, res) => {
 
 /*
-  #swagger.summary = '유저 미션 완료 API'
+  #swagger.summary = '미션 완료 변경 API'
   #swagger.tags = ['Mission']
   #swagger.requestBody = {
     required: true,
@@ -390,7 +416,7 @@ export const completeUserMission = async (req, res) => {
           type: "object",
           required: ["userId", "missionId"],
           properties: {
-            userId: { type: "integer", example: 1 },
+            userId: { type: "integer", example: 2 },
             missionId: { type: "integer", example: 1 }
           }
         }
@@ -430,7 +456,7 @@ export const completeUserMission = async (req, res) => {
               type: "object",
               properties: {
                 errorCode: { type: "string", example: "M005" },
-                reason: { type: "string", example: "미션 완료 처리 중 오류가 발생했습니다. " },
+                reason: { type: "string", example: "미션 완료 처리 중 오류가 발생했습니다." },
                 data: { type: "object", example: { userId: 1, missionId: 1, originalError: "DB 업데이트 중 오류 발생 : Cannot read properties of null (reading 'id')" } }
               }
             },

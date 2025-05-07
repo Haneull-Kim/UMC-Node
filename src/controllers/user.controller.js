@@ -18,7 +18,6 @@ export const registerUser = async (req, res) => {
 /*
   #swagger.summary = '회원 가입 API'
   #swagger.tags = ['User']
-  #swagger.description = '신규 유저를 등록합니다.'
   #swagger.requestBody = {
     required: true,
     content: {
@@ -27,21 +26,21 @@ export const registerUser = async (req, res) => {
           type: "object",
           required: ["name", "gender", "birth", "address", "email", "phoneNumber"],
           properties: {
-            name: { type: "string", example: "홍길동" },
+            name: { type: "string", example: "iii" },
             gender: { type: "integer", example: 1 },
-            birth: { type: "string", format: "date", example: "2000-01-01" },
+            birth: { type: "string", format: "date", example: "2000-05-12" },
             address: { type: "string", example: "서울시 강남구" },
-            email: { type: "string", example: "user@example.com" },
-            phoneNumber: { type: "string", example: "010-1234-5678" },
+            email: { type: "string", example: "iii@example.com" },
+            phoneNumber: { type: "string", example: "010-2234-7678" },
             optionCategoryIds: {
               type: "array",
               items: { type: "integer" },
-              example: [1, 2]
+              example: [1, 2, 3]
             },
             foodCategoryIds: {
               type: "array",
               items: { type: "integer" },
-              example: [3, 4]
+              example: [4, 5, 6]
             }
           }
         }
@@ -61,7 +60,7 @@ export const registerUser = async (req, res) => {
               type: "object",
               properties: {
                 message: { type: "string", example: "회원가입이 완료되었습니다." },
-                userId: { type: "string", example: "1" }
+                userId: { type: "string", example: "4" }
               }
             }
           }
@@ -70,7 +69,7 @@ export const registerUser = async (req, res) => {
     }
   }
   #swagger.responses[400] = {
-    description: '이메일 중복으로 인한 실패',
+    description: '이메일이 중복된 경우',
     content: {
       "application/json": {
         schema: {
@@ -85,7 +84,7 @@ export const registerUser = async (req, res) => {
                 data: {
                   type: "object",
                   properties: {
-                    email: { type: "string", example: "user@example.com" }
+                    email: { type: "string", example: "iii@example.com" }
                   }
                 }
               }
@@ -121,7 +120,7 @@ export const getUserReviews = async (req, res) => {
   #swagger.tags = ['User']
   #swagger.parameters['userId'] = {
     in: 'path',
-    description: '리뷰를 조회할 사용자 ID',
+    description: '사용자 ID',
     required: true,
     type: 'string',
     example: '1'
@@ -131,10 +130,10 @@ export const getUserReviews = async (req, res) => {
     description: '페이지네이션을 위한 커서',
     required: false,
     type: 'string',
-    example: '2001'
+    example: 'null'
   }
   #swagger.responses[200] = {
-    description: "사용자 리뷰 목록 조회 성공",
+    description: "사용자 리뷰 조회 성공",
     content: {
       "application/json": {
         schema: {
@@ -151,23 +150,23 @@ export const getUserReviews = async (req, res) => {
                   items: {
                     type: "object",
                     properties: {
-                      id: { type: "string", example: "2001" },
-                      userId: { type: "string", example: "2001" },
-                      storeId: { type: "string", example: "2001" },
-                      rate: { type: "integer", example: 5 },
-                      content: { type: "string", example: "좋은 경험이었습니다." },
-                      createdAt: { type: "string", format: "date-time", example: "2025-05-01T10:00:00Z" },
+                      id: { type: "string", example: "2" },
+                      userId: { type: "string", example: "1" },
+                      storeId: { type: "string", example: "3" },
+                      rate: { type: "integer", example: 4 },
+                      content: { type: "string", example: "맛있어요, 또 방문할게요!" },
+                      createdAt: { type: "string", format: "date-time", example: "2025-04-30T12:10:09.000Z" },
                       store: {
                         type: "object",
                         properties: {
-                          name: { type: "string", example: "맛있는 식당" }
+                          name: { type: "string", example: "필동치킨" }
                         }
                       }
                     }
                   }
                 },
                 pagination: {
-                  cursor: { type: "string", example: "2001" }
+                  cursor: { type: "string", example: "2" }
                 }
               }
             }
@@ -177,7 +176,7 @@ export const getUserReviews = async (req, res) => {
     }
   }
   #swagger.responses[500] = {
-    description: "userId 누락",
+    description: "사용자 ID가 누락된 경우",
     content: {
       "application/json": {
         schema: {
@@ -206,8 +205,8 @@ export const getUserReviews = async (req, res) => {
 */
 
   try {
-    const { userId } = req.params; 
-    const { cursor } = req.query;
+    const userId = req.params.userId; 
+    const cursor = req.query.cursor ? parseInt(req.query.cursor) : null;
     
     const { reviews, nextCursor } = await getUserReviewsService(userId, cursor); 
 
