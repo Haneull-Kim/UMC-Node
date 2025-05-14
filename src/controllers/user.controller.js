@@ -1,6 +1,7 @@
 import { 
   registerUserService,
-  getUserReviewsService
+  getUserReviewsService,
+  changeUserInfoService
  } from "../services/user.service.js";
 
 import { serializeBigInt } from "../utils/jsonBigInt.js";
@@ -9,7 +10,8 @@ import { StatusCodes } from 'http-status-codes';
 import { 
   DuplicateUserEmailError, 
   GetUserReviewsError,
-  MissingUserIdError
+  MissingUserIdError,
+  UserNotFoundError
 } from "../errors/user.error.js";
 
 
@@ -224,5 +226,23 @@ export const getUserReviews = async (req, res) => {
     }
     
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).fail("A000", "리뷰 목록 조회 중 서버 오류가 발생했습니다.");
+  }
+};
+
+export const changeUserInfo = async (req, res) => {
+  try {
+    const userId = req.params.userId; 
+
+    const result = await changeUserInfoService(userId, req.body);
+
+    res.status(StatusCodes.OK).success({
+      message: "회원 정보 변경이 완료되었습니다.",
+      userId: result,
+    });
+  } catch (error) {
+    if(error instanceof MissingUserIdError || error instanceof UserNotFoundError) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).fail(error.errorCode, error.reason, error.data);
+    }
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).fail("A000", "회원 정보 수정 중 서버 오류가 발생했습니다.");
   }
 };

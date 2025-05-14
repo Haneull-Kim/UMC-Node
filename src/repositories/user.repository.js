@@ -1,4 +1,5 @@
 import { prisma } from "../db.config.js";
+import { UserNotFoundError } from "../errors/user.error.js";
 
 export const isEmailDuplicated = async (email) => {
   try {
@@ -85,5 +86,36 @@ export const getUserReviewsRepository = async (userId, cursor) => {
     return { reviews, nextCursor };
   } catch (err) {
     throw new Error(`리뷰 조회 중 오류가 발생했습니다. (${err})`);
+  }
+};
+
+export const updateUserInfoRepository = async (userId, changeUserDTO) => {
+  try {
+    const updateUser = await prisma.user.update({
+      where: { id: Number(userId) },
+      data: {
+        gender: changeUserDTO.gender,
+        birth: changeUserDTO.birth,
+        address: changeUserDTO.address,
+        phoneNumber: changeUserDTO.phoneNumber,
+        image: changeUserDTO.image,
+        updatedAt: new Date(),
+      },
+    });
+    return updateUser.id.toString(); 
+  } catch (err) {
+    throw new Error(`회원 정보 수정 중 오류가 발생했습니다. (${err.message})`);
+  }
+};
+
+export const checkUserExists = async (userId) => {
+  try {
+    const result = await prisma.user.findUnique({
+      where: { id: Number(userId) }, 
+      select: { id: true }
+    });
+    return !!result;
+  } catch (err) {
+    throw new Error(`사용자 존재 여부 조회 중 오류가 발생했습니다. (${err})`);
   }
 };

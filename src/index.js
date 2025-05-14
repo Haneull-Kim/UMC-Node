@@ -6,7 +6,8 @@ import swaggerUiExpress from "swagger-ui-express";
 
 import { 
   registerUser, 
-  getUserReviews 
+  getUserReviews,
+  changeUserInfo
 } from "./controllers/user.controller.js";
 import { 
   addStore, 
@@ -23,17 +24,29 @@ import {
 
 import { responseHandler } from "./middlewares/response.js";
 
+import { PrismaSessionStore } from "@quixo3/prisma-session-store";
+import session from "express-session";
+import passport from "passport";
+import { googleStrategy } from "./auth.config.js";
+import { kakaoStrategy } from "./auth.config.js";
+import { prisma } from "./db.config.js";
+
 dotenv.config();
+
+passport.use(googleStrategy);
+passport.use(kakaoStrategy);
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
 
 const app = express();
 const port = process.env.PORT;
 
 app.use(responseHandler);
 
-app.use(cors()); // cors 방식 허용
-app.use(express.static("public")); // 정적 파일 접근
-app.use(express.json()); // request의 본문을 json으로 해석할 수 있도록 함 (JSON 형태의 요청 body를 파싱하기 위함)
-app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형태로 본문 데이터 해석
+app.use(cors()); 
+app.use(express.static("public")); 
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: false })); 
 
 app.use(
   "/docs",
@@ -44,6 +57,25 @@ app.use(
     },
   })
 );
+
+app.use(
+  session({
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000, // ms
+    },
+    resave: false,
+    saveUninitialized: false,
+    secret: process.env.EXPRESS_SESSION_SECRET,
+    store: new PrismaSessionStore(prisma, {
+      checkPeriod: 2 * 60 * 1000, // ms
+      dbRecordIdIsSessionId: true,
+      dbRecordIdFunction: undefined,
+    }),
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get("/openapi.json", async (req, res, next) => {
   // #swagger.ignore = true
@@ -68,6 +100,7 @@ app.get("/openapi.json", async (req, res, next) => {
 
 app.get("/", (req, res) => {
   // #swagger.ignore = true
+  console.log(req.user);
   res.send("Hello World!");
 });
 
@@ -104,3 +137,30 @@ app.get("/api/v1/missions/:userId/getUserMissions", getUserMissions);
 
 // 미션 완료 처리
 app.patch("/api/v1/missions/complete", completeUserMission);
+
+// 회원 정보 수정
+app.patch("/api/v1/users/:userId/changeInfo", changeUserInfo);
+
+// google 로그인
+app.get("/oauth2/login/google", passport.authenticate("google"));
+
+app.get(
+  "/oauth2/callback/google",
+  passport.authenticate("google", {
+    failureRedirect: "/oauth2/login/google",
+    failureMessage: true,
+  }),
+  (req, res) => res.redirect("/")
+);
+
+// kakao 로그인
+app.get("/oauth2/login/kakao", passport.authenticate("kakao"));
+
+app.get(
+  "/oauth2/callback/kakao",
+  passport.authenticate("kakao", {
+    failureRedirect: "/oauth2/login/kakao",
+    failureMessage: true,
+  }),
+  (req, res) => res.redirect("/")
+);

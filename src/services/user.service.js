@@ -2,6 +2,7 @@ import {
   bodyToUser,
   bodyToUserOptions,
   bodyToUserFoods,
+  bodyToChangeUser
 } from "../dtos/user.dto.js";
 
 import {
@@ -9,13 +10,16 @@ import {
   addUserRepository,
   addUserOptions,
   addUserFoods,
-  getUserReviewsRepository
+  getUserReviewsRepository,
+  updateUserInfoRepository,
+  checkUserExists
 } from "../repositories/user.repository.js";
 
 import { 
   DuplicateUserEmailError, 
   GetUserReviewsError,
-  MissingUserIdError
+  MissingUserIdError,
+  UserNotFoundError
 } from "../errors/user.error.js";
 
 export const registerUserService = async (body) => {
@@ -57,4 +61,24 @@ export const getUserReviewsService = async (userId, cursor) => {
       originalError: err.message,
     });
   }
+};
+
+export const changeUserInfoService = async (userId, body) => {
+
+  if (!userId || isNaN(Number(userId))) {
+    throw new MissingUserIdError("userId가 누락되었거나 유효하지 않습니다.", { userId, cursor });
+  }
+
+  const userExists = await checkUserExists(userId);
+  
+  if (!userExists) {
+    throw new UserNotFoundError("사용자가 존재하지 않습니다.", {
+      userId: userId
+    });
+  }
+
+  const changeUserDTO = bodyToChangeUser(body);
+  const result = await updateUserInfoRepository(userId, changeUserDTO);
+
+  return result;
 };

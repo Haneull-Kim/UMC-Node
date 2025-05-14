@@ -8,7 +8,7 @@ datasource db {
 }
 
 model AddressCategory {
-  id     BigInt   @id @default(autoincrement())
+  id     Int   @id @default(autoincrement())
   name   String?  @db.VarChar(20)
 
   stores Store[]
@@ -17,7 +17,7 @@ model AddressCategory {
 }
 
 model AlertCategory {
-  id          BigInt        @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   description String?       @db.Text
 
   userAlerts  UserAlert[]
@@ -26,7 +26,7 @@ model AlertCategory {
 }
 
 model FoodCategory {
-  id        BigInt       @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String?      @db.VarChar(20)
 
   userFoods UserFood[]
@@ -35,7 +35,7 @@ model FoodCategory {
 }
 
 model InquireCategory {
-  id        BigInt      @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String?     @db.VarChar(20)
 
   inquires  Inquire[]
@@ -44,7 +44,7 @@ model InquireCategory {
 }
 
 model OptionCategory {
-  id          BigInt        @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   description String?       @db.Text
 
   userOptions UserOption[]
@@ -53,7 +53,7 @@ model OptionCategory {
 }
 
 model StoreCategory {
-  id     BigInt   @id @default(autoincrement())
+  id     Int   @id @default(autoincrement())
   name   String?  @db.VarChar(20)
 
   stores Store[]
@@ -62,12 +62,12 @@ model StoreCategory {
 }
 
 model Store {
-  id                  BigInt        @id @default(autoincrement())
+  id                  Int        @id @default(autoincrement())
   name                String?       @db.VarChar(40)
   status              Int?
   address             String?       @db.Text
-  storeCategoryId     BigInt?       @map("store_category_id")
-  addressCategoryId   BigInt?       @map("address_category_id")
+  storeCategoryId     Int?       @map("store_category_id")
+  addressCategoryId   Int?       @map("address_category_id")
   image               String?       @db.Text
   createdAt           DateTime?     @map("created_at") @db.DateTime
   updatedAt           DateTime?     @map("updated_at") @db.DateTime
@@ -82,8 +82,8 @@ model Store {
 }
 
 model Mission {
-  id              BigInt        @id @default(autoincrement())
-  storeId         BigInt?       @map("store_id")
+  id              Int        @id @default(autoincrement())
+  storeId         Int?       @map("store_id")
   description     String?       @db.Text
   pointCalculate  String?       @db.Text @map("point_calculate")
   endDate         DateTime?     @db.Date @map("end_date")
@@ -97,7 +97,7 @@ model Mission {
 }
 
 model User {
-  id           BigInt        @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   name         String        @db.VarChar(20)
   gender       Int?
   birth        DateTime?     @db.Date
@@ -124,8 +124,8 @@ model User {
 }
 
 model ChangePoint {
-  id              BigInt      @id @default(autoincrement())
-  userId          BigInt?     @map("user_id")
+  id              Int      @id @default(autoincrement())
+  userId          Int?     @map("user_id")
   description     String?     @db.Text
   pointCalculate  String?     @db.Text @map("point_calculate")
   createdAt       DateTime?   @map("created_at") @db.DateTime
@@ -136,9 +136,9 @@ model ChangePoint {
 }
 
 model Inquire {
-  id                BigInt           @id @default(autoincrement())
-  userId            BigInt?          @map("user_id")
-  inquireCategoryId BigInt?          @map("inquire_category_id")
+  id                Int           @id @default(autoincrement())
+  userId            Int?          @map("user_id")
+  inquireCategoryId Int?          @map("inquire_category_id")
   title             String?          @db.VarChar(40)
   content           String?          @db.Text
   image             String?          @db.Text
@@ -153,9 +153,9 @@ model Inquire {
 }
 
 model Point {
-  id      BigInt @id @default(autoincrement())
-  userId  BigInt? @map("user_id")
-  point   BigInt? 
+  id      Int @id @default(autoincrement())
+  userId  Int? @map("user_id")
+  point   Int? 
 
   user User? @relation(fields: [userId], references: [id])
 
@@ -163,9 +163,9 @@ model Point {
 }
 
 model Review {
-  id         BigInt     @id @default(autoincrement())
-  userId     BigInt?    @map("user_id")
-  storeId    BigInt?    @map("store_id")
+  id         Int     @id @default(autoincrement())
+  userId     Int?    @map("user_id")
+  storeId    Int?    @map("store_id")
   rate       Float?
   content    String?    @db.Text
   image      String?    @db.Text
@@ -180,9 +180,9 @@ model Review {
 }
 
 model UserAlert {
-  id               BigInt         @id @default(autoincrement())
-  userId           BigInt?        @map("user_id")
-  alertCategoryId  BigInt?        @map("alert_category_id")
+  id               Int         @id @default(autoincrement())
+  userId           Int?        @map("user_id")
+  alertCategoryId  Int?        @map("alert_category_id")
 
   user          User?         @relation(fields: [userId], references: [id])
   alertCategory AlertCategory? @relation(fields: [alertCategoryId], references: [id])
@@ -191,9 +191,9 @@ model UserAlert {
 }
 
 model UserFood {
-  id              BigInt        @id @default(autoincrement())
-  userId          BigInt?       @map("user_id")
-  foodCategoryId  BigInt?       @map("food_category_id")
+  id              Int        @id @default(autoincrement())
+  userId          Int?       @map("user_id")
+  foodCategoryId  Int?       @map("food_category_id")
 
   user         User?        @relation(fields: [userId], references: [id])
   foodCategory FoodCategory? @relation(fields: [foodCategoryId], references: [id])
@@ -202,9 +202,9 @@ model UserFood {
 }
 
 model UserMission {
-  id         BigInt     @id @default(autoincrement())
-  userId     BigInt?    @map("user_id")
-  missionId  BigInt?    @map("mission_id")
+  id         Int     @id @default(autoincrement())
+  userId     Int?    @map("user_id")
+  missionId  Int?    @map("mission_id")
   status     Int?
   createdAt  DateTime?  @map("created_at") @db.DateTime
   updatedAt  DateTime?  @map("updated_at") @db.DateTime
@@ -216,12 +216,21 @@ model UserMission {
 }
 
 model UserOption {
-  id                BigInt         @id @default(autoincrement())
-  userId            BigInt?        @map("user_id")
-  optionCategoryId  BigInt?        @map("option_category_id")
+  id                Int         @id @default(autoincrement())
+  userId            Int?        @map("user_id")
+  optionCategoryId  Int?        @map("option_category_id")
 
   user           User?          @relation(fields: [userId], references: [id])
   optionCategory OptionCategory? @relation(fields: [optionCategoryId], references: [id])
 
   @@map("user_option")
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String   @db.VarChar(512)
+  expiresAt DateTime @map("expires_at")
+
+  @@map("session")
 }

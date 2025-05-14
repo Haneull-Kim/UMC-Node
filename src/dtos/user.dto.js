@@ -24,3 +24,12 @@ export const bodyToUserFoods = (userId, foodCategoryIds) =>
     userId,
     foodCategoryId
   }));
+
+export const bodyToChangeUser = (body) => ({
+  gender: body.gender || null,
+  birth: body.birth ? new Date(body.birth) : null,
+  address: body.address || null,
+  phoneNumber: body.phoneNumber || null,
+  image: body.image || null,
+  updatedAt: new Date(),
+});

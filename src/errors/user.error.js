@@ -27,3 +27,14 @@ export class MissingUserIdError extends Error {
     this.data = data;
   }
 }
+
+export class UserNotFoundError extends Error {
+  errorCode = "U004";
+
+ constructor(reason = "존재하지 않는 사용자 입니다.", data = {}) {
+      super(reason);
+      this.name = "UserNotFoundError";
+      this.reason = reason;
+      this.data = data;
+    }
+}
