@@ -66,7 +66,7 @@ export const getUserReviewsService = async (userId, cursor) => {
 export const changeUserInfoService = async (userId, body) => {
 
   if (!userId || isNaN(Number(userId))) {
-    throw new MissingUserIdError("userId가 누락되었거나 유효하지 않습니다.", { userId, cursor });
+    throw new MissingUserIdError("userId가 누락되었거나 유효하지 않습니다.", { userId });
   }
 
   const userExists = await checkUserExists(userId);
